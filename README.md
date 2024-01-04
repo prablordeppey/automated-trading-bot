@@ -20,7 +20,15 @@ This repository contains the source code for an automated trading bot designed t
 
 ## Usage:
 
-1. To be updated
+1. Initialize development environment 
+  ```bash
+    make init_dev_env
+  ``` 
+1. Setup the local virtual environment
+  ```bash
+     source ./venv/Scripts/activate
+     pip install -r requirements/dev.txt
+  ```
 
 ## Disclaimer:
 
