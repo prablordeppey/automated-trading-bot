@@ -18,7 +18,7 @@ This repository contains the source code for an automated trading bot designed t
 - **Backtesting:**
   - Validation of strategy effectiveness through backtesting with historical data.
 
-## Usage:
+## Setup Virtual Environment:
 
 1. Initialize development environment 
   ```bash

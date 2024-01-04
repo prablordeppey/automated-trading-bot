@@ -36,8 +36,8 @@ update_dev_env:
 package_app:
 	poetry build -vvv -n
 
-# target: run-app ## Runs the application
-run-app:
+# target: serve ## Runs the application
+serve:
 	poetry run python -m bot
 
 # target: run_linter ## Checks code integrity
