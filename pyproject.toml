@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "An auto-trading bot"
 authors = ["icetee4eva <30740369+prablordeppey@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "automated_trading_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
