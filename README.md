@@ -30,6 +30,20 @@ This repository contains the source code for an automated trading bot designed t
      pip install -r requirements/dev.txt
   ```
 
+## Installing `make`
+
+1. Install `choco` via powershell to install `make`.
+   ```cmd
+   Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+   ```
+1. Install `make` via
+   ```cmd
+   choco install make
+   ```
+1. Restart your terminal to pickup changes
+1. run `make` to list all available targets/commands.
+
+
 ## Disclaimer:
 
 This trading bot is provided for educational and experimental purposes only. Use it at your own risk. The authors and contributors are not responsible for any financial losses incurred.
