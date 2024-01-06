@@ -57,7 +57,14 @@ class GetTradableAssetPairsSchema(GetEndpoints):
         tradable_pairs = tradable_pairs.pair_name.to_list()
         return tradable_pairs
 
-    def get_tradable_pairs_for_exchange(self) -> list:
+    def __get_bybit_tradable_pairs(self, df: pd.DataFrame) -> List[str]:
+        """Bybit tradable pairs"""
+        tradable_pairs = df[df.status == "Trading"]
+        tradable_pairs["pair_name"] = tradable_pairs.apply(lambda x: x.baseCoin + "/" + x.quoteCoin, axis=1)
+        tradable_pairs = tradable_pairs.pair_name.to_list()
+        return tradable_pairs
+
+    def get_tradable_pairs_for_exchange(self, **kwargs) -> list:
         """
         Get a list of tradable pairs for a given exchange.
 
@@ -67,7 +74,7 @@ class GetTradableAssetPairsSchema(GetEndpoints):
         tradable_pairs: list[str] = []
 
         # Build the endpoint URL for retrieving pairs information
-        pairs_info_url = self.build_tradable_assets_url()
+        pairs_info_url = self.build_tradable_assets_url(**kwargs)
 
         # Make a GET request to the endpoint
         try:
@@ -80,6 +87,8 @@ class GetTradableAssetPairsSchema(GetEndpoints):
                 tradable_pairs = pd.DataFrame(resp["result"]).T.pipe(self.__get_kraken_tradable_pairs)
             elif self.exchange == "coinbase":
                 tradable_pairs = pd.DataFrame(resp).pipe(self.__get_coinbase_tradable_pairs)
+            elif self.exchange == "bybit":
+                tradable_pairs = pd.DataFrame(resp["result"]["list"]).pipe(self.__get_bybit_tradable_pairs)
         except Exception as e:
             print(f"An error occurred while fetching tradable pairs: {e}")
             raise ValueError("An error occurred while fetching tradable pairs")

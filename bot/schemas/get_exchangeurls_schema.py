@@ -9,13 +9,13 @@ class UrlsListSchema(BaseModel):
 
     Attributes:
         base_url (str): The base URL for the exchange.
-        ohlc_data (str): The URL endpoint for OHLC (Open, High, Low, Close) data.
-        tradable_pairs (str): The URL endpoint for retrieving tradable pairs information.
+        ticker (str): The URL endpoint for OHLC (Open, High, Low, Close) data.
+        asset_pairs (str): The URL endpoint for retrieving tradable pairs information.
     """
 
     base_url: str
-    ohlc_data: str
-    tradable_pairs: str
+    ticker: str
+    asset_pairs: str
 
 
 class ExchangeUrlsModel(BaseModel):
@@ -33,13 +33,25 @@ class ExchangeUrlsModel(BaseModel):
     """
 
     binance: UrlsListSchema = UrlsListSchema(
-        base_url="https://api.binance.com/api/v3", ohlc_data="/ticker?symbols=", tradable_pairs="/exchangeInfo"
+        base_url="https://api.binance.com/api/v3",
+        ticker="/ticker?symbols=",
+        kline="/klines?",
+        asset_pairs="/exchangeInfo?",
     )
     coinbase: UrlsListSchema = UrlsListSchema(
-        base_url="https://api.exchange.coinbase.com", ohlc_data="products/%s/candles", tradable_pairs="/products"
+        base_url="https://api.exchange.coinbase.com",
+        ticker="products/%s/ticker",
+        kline="products/%s/candles?",
+        asset_pairs="/products?",
     )
     kraken: UrlsListSchema = UrlsListSchema(
-        base_url="https://api.kraken.com/0/public", ohlc_data="/Ticker?pair=", tradable_pairs="/AssetPairs"
+        base_url="https://api.kraken.com/0/public", ticker="/Ticker?pair=", kline="", asset_pairs="/AssetPairs"
+    )
+    bybit: UrlsListSchema = UrlsListSchema(
+        base_url="https://api-testnet.bybit.com/v5",
+        ticker="/market/tickers",
+        kline="/market/kline?",
+        asset_pairs="/market/instruments-info?",
     )
 
 
@@ -77,7 +89,7 @@ class GetEndpoints(ExchangeUrlsModel):
             )
         return value.lower()
 
-    def build_tradable_assets_url(self):
+    def build_tradable_assets_url(self, **kwargs):
         """
         Build and return the URL for retrieving tradable assets.
 
@@ -85,7 +97,10 @@ class GetEndpoints(ExchangeUrlsModel):
             (str): The constructed URL for fetching tradable assets.
         """
         exchange_urls: UrlsListSchema = getattr(self, self.exchange)
-        return exchange_urls.base_url + exchange_urls.tradable_pairs
+        parsed_endpoint = exchange_urls.base_url + exchange_urls.asset_pairs
+        if kwargs:
+            parsed_endpoint += "&".join(f"{key}={value}" for key, value in kwargs.items())
+        return parsed_endpoint
 
     def build_ohlc_assets_url(self, pair: str):
         """
@@ -98,6 +113,6 @@ class GetEndpoints(ExchangeUrlsModel):
         exchange_urls: UrlsListSchema = getattr(self, self.exchange)
 
         if self.exchange == "coinbase":
-            return exchange_urls.base_url + exchange_urls.ohlc_data.format(pair)
+            return exchange_urls.base_url + exchange_urls.ticker.format(pair)
 
-        return exchange_urls.base_url + exchange_urls.ohlc_data + pair
+        return exchange_urls.base_url + exchange_urls.ticker + pair
