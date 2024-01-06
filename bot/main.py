@@ -16,7 +16,7 @@ def read_root():
 
 
 @app.get("/scan-tradable-asset-pairs", response_model=dict, status_code=status.HTTP_200_OK)
-def tradable_asset_pairs(exchange: str) -> dict:
+def scan_tradable_asset_pairs(exchange: str) -> dict:
     """
     Get a list of tradable asset pairs for a specified exchange.
 
@@ -27,13 +27,15 @@ def tradable_asset_pairs(exchange: str) -> dict:
         (dict): The length and list of tradable pairs.
             Example: {"length": 10, "tradable_pairs": ["BTC/USD", "ETH/BTC", ...]}
     """
+    tradable_pairs = []
     try:
-        # Get tradable pairs for the specified exchange
-        tradable_pairs = GetTradableAssetPairsSchema(exchange=exchange).get_tradable_pairs_for_exchange()
+        kwargs = {}
+        if exchange == "bybit":
+            kwargs.update({"category": "spot"})
 
-        # Return the response
+        tradable_pairs = GetTradableAssetPairsSchema(exchange=exchange).get_tradable_pairs_for_exchange(**kwargs)
+
         return {"length": len(tradable_pairs), "tradable_pairs": tradable_pairs}
-
     except Exception as e:
         # Handle exceptions and return appropriate HTTP response
         raise HTTPException(status_code=500, detail=f"Error retrieving tradable asset pairs: {str(e)}")
