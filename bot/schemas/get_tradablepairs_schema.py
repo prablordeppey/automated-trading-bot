@@ -13,7 +13,6 @@ Methods:
     get_tradable_pairs_for_exchange(): Fetch a list of tradable pairs for the specified exchange.
 """
 
-import json
 from typing import List
 import requests
 import pandas as pd

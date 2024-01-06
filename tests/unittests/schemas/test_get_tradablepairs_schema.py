@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 from pydantic import ValidationError
 import pytest
 
-from bot.schemas.get_exchangeurls_schema import ExchangeUrlsModel, GetEndpoints, UrlsListSchema
+from bot.schemas.get_exchangeurls_schema import ExchangeUrlsModel, UrlsListSchema
 from bot.schemas.get_tradablepairs_schema import GetTradableAssetPairsSchema
 
 

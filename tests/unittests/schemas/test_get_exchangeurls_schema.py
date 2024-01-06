@@ -1,4 +1,3 @@
-from unittest.mock import patch
 import pytest
 
 from bot.schemas.get_exchangeurls_schema import ExchangeUrlsModel, GetEndpoints, UrlsListSchema
