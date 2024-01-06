@@ -47,3 +47,9 @@ check_linter:
 # target: fix_linter ## Checks code integrity
 fix_linter:
 	poetry run ruff check . --fix
+
+# target: run_unittests ## run unittests
+run_unittests:
+	@echo "Running tests for the endpoints ..."
+	poetry run coverage run -m pytest tests/
+	poetry run coverage report --show-missing

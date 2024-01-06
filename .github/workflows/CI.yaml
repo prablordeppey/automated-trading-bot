@@ -29,4 +29,5 @@ jobs:
 
     - name: Run pytest with coverage
       run: |
-        poetry run pytest --cov=bot tests/
+        poetry run coverage run -m pytest tests/
+        poetry run coverage report --show-missing
