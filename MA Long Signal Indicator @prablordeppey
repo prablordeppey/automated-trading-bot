@@ -1,0 +1,118 @@
+// This script is a Pine Script indicator for long trading signals based on moving averages and dispersion percentages written with love for the community
+// Author: prablordeppey@gmail.com
+
+//@version=5
+indicator("4MA Long Signal Indicator @prablordeppey", overlay=true)
+
+// Define moving averages
+ma8 = ta.ema(close, 8)     // Exponential moving average over 8 periods
+ma13 = ta.ema(close, 13)   // Exponential moving average over 13 periods
+ma21 = ta.ema(close, 21)   // Exponential moving average over 21 periods
+ma34 = ta.ema(close, 34)   // Exponential moving average over 34 periods (not used for trading signals, visual reference only)
+
+// Final condition for entering a long position, combining base signals and dispersion conditions
+enter_long_conditions_met = (ma8 > ma13) and (ma13 > ma21) // Base condition for entering a long position based on MA relationships
+
+// ==== EXIT LONG CONDITIONS
+exit_long_conditions_met = (ma8 > ma13) // Condition for exiting a long position based on MA8 and MA13 relationship
+
+// ==== FILTERING 
+// Variable to keep track of previous value
+curr_enter_long_cond = enter_long_conditions_met[0]
+prev_enter_long_cond = enter_long_conditions_met[1]
+
+curr_exit_long_cond = exit_long_conditions_met[0]
+prev_exit_long_cond = exit_long_conditions_met[1]
+
+var bool is_first_long_signal = na
+var bool has_set_enter_long_signal = na
+var float entry_long_price = na
+var bool has_set_strong_exit_long_signal = na
+var bool has_set_normal_exit_long_signal = na
+var bool has_set_percent_change_signal = na
+var bool can_show_percentage = na
+
+// STOPING CRITERIA
+
+// STRONG stop
+// Signal a strong exit from a long position based on a crossunder of MA8 and MA21
+if ta.crossunder(ma8, ma21) and has_set_enter_long_signal
+    label.new(bar_index, high, "STRONG EXIT LONG", color = color.red)
+    has_set_strong_exit_long_signal := true
+    has_set_enter_long_signal := false
+    is_first_long_signal := false
+    can_show_percentage := false
+else
+    has_set_strong_exit_long_signal := false
+plotshape(has_set_strong_exit_long_signal, style=shape.triangleup, location=location.belowbar, color=color.red, size=size.large)
+
+// STALE check: Update on stale movements no difference in price
+// Signal a percentage change in price indicating a potential exit
+if (ma8 <= ma8[1]) and can_show_percentage
+    label.new(bar_index, high, str.tostring(math.round((close[0]-entry_long_price)/close[0] * 100, 2))+"%", textcolor = color.orange)
+    has_set_percent_change_signal := true
+plotshape((ma8 <= ma8[1]) and can_show_percentage, style=shape.triangleup, location=location.belowbar, color=color.rgb(255, 143, 82), size=size.small)
+
+// NORMAL exit
+
+// Signal a normal exit from a long position based on a crossunder of MA8 and MA13
+if ta.crossunder(ma8, ma13) and has_set_enter_long_signal and can_show_percentage
+    label.new(bar_index, high, "EXIT LONG", textcolor = color.red)
+    has_set_normal_exit_long_signal := true
+plotshape(has_set_normal_exit_long_signal and ta.crossunder(ma8, ma13) and can_show_percentage, style=shape.triangleup, location=location.belowbar, color=color.red, size=size.small)
+
+if curr_enter_long_cond == true and prev_enter_long_cond == false
+    is_first_long_signal := true
+    entry_long_price := close
+
+if curr_enter_long_cond == true and prev_enter_long_cond == true and has_set_enter_long_signal == false
+    is_first_long_signal := true
+plotshape(enter_long_conditions_met and is_first_long_signal, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.large)
+
+if enter_long_conditions_met and is_first_long_signal
+    label.new(bar_index, high, "ENTER LONG", color = color.lime)
+
+// Plot your other moving averages for visual reference
+plot(ma8, color=color.red, title="MA8")
+plot(ma13, color=color.green, title="MA13")
+plot(ma21, color=color.orange, title="MA21")
+plot(ma34, color=color.rgb(255, 28, 160, 49), title="MA34")
+
+// Set flags for entering a long position
+if is_first_long_signal == true
+    has_set_enter_long_signal := true
+    is_first_long_signal := false
+    can_show_percentage := true
+
+
+// This Pine Script indicator generates long trading signals based on moving averages and specific conditions. Below is the documentation for each block:
+
+// 1. Moving Averages:
+//    - `ma8`, `ma13`, `ma21`, and `ma34` are exponential moving averages (EMAs) calculated over different periods, providing visual references for the indicator.
+
+// 2. Enter Long Conditions:
+//    - `enter_long_conditions_met`: Determines if it's suitable to enter a long position based on the relationship between MA8, MA13, and MA21. A long position is initiated when MA8 is above MA13, and MA13 is above MA21.
+
+// 3. Exit Long Conditions:
+//    - `exit_long_conditions_met`: Defines conditions for exiting a long position based on the relationship between MA8 and MA13.
+
+// 4. Filtering and Tracking:
+//    - Various boolean and float variables are used to track the state of trading signals and manage filtering and stopping criteria.
+
+// 5. Stopping Criteria:
+//    - `has_set_strong_exit_long_signal`: Signals a strong exit from a long position based on a crossunder of MA8 and MA21.
+//    - `has_set_percent_change_signal`: Signals a percentage change in price indicating a potential exit.
+//    - `has_set_normal_exit_long_signal`: Signals a normal exit from a long position based on a crossunder of MA8 and MA13.
+
+// 6. Entry and Exit Signals:
+//    - `is_first_long_signal`: Indicates if it's the first signal to enter a long position.
+//    - `entry_long_price`: Tracks the price at which the long position was entered.
+//    - Entry and exit signals are plotted on the chart along with appropriate labels.
+
+// 7. Visual Reference:
+//    - The script plots the moving averages (`ma8`, `ma13`, `ma21`, and `ma34`) for visual reference on the chart.
+
+// 8. Long Position Management:
+//    - Flags are set to manage entering and exiting long positions based on certain conditions.
+
+// This documentation provides a clear understanding of how the indicator works and the purpose of each component within the script.
